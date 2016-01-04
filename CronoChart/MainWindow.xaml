@@ -2,8 +2,14 @@
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:cronoChart="clr-namespace:CronoChart"
-        Title="MainWindow" Height="350" Width="525">
+        Title="MainWindow" Height="350" Width="525"
+        DataContext="{Binding RelativeSource={RelativeSource Self}}">
     <Grid>
-        <cronoChart:TimeChart/>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="*"/>
+            <ColumnDefinition Width="50"/>
+        </Grid.ColumnDefinitions>
+        <cronoChart:TimeChart Grid.Column="0" CurrentValue="{Binding CurrentValue}"/>
+        <ProgressBar Grid.Column="1" Value="{Binding CurrentValue}" Orientation="Vertical"></ProgressBar>
     </Grid>
 </Window>

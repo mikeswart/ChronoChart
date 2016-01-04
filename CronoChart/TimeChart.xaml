@@ -6,6 +6,7 @@
              mc:Ignorable="d" 
              d:DesignHeight="300" d:DesignWidth="300">
     <Canvas x:Name="Canvas">
-        <!--<Polyline Stroke="Fuchsia" StrokeThickness="1" x:Name="Polyline"></Polyline>-->
+        <Polyline Stroke="Fuchsia" StrokeThickness="1" x:Name="Polyline"></Polyline>
+        <!--<Image x:Name="Image"></Image>-->
     </Canvas>
 </UserControl>
