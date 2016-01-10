@@ -10,6 +10,15 @@
             <ColumnDefinition Width="50"/>
         </Grid.ColumnDefinitions>
         <chronoChart:TimeChart Grid.Column="0" CurrentValue="{Binding CurrentValue}"/>
-        <ProgressBar Grid.Column="1" Value="{Binding CurrentValue}" Orientation="Vertical"></ProgressBar>
+        <ProgressBar Grid.Column="1" Value="{Binding CurrentValue}" Orientation="Vertical" RenderTransformOrigin="0.5,0.5">
+            <ProgressBar.RenderTransform>
+                <TransformGroup>
+                    <ScaleTransform ScaleY="-1"/>
+                    <SkewTransform/>
+                    <RotateTransform/>
+                    <TranslateTransform/>
+                </TransformGroup>
+            </ProgressBar.RenderTransform>
+        </ProgressBar>
     </Grid>
 </Window>

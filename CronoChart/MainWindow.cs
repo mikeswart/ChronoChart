@@ -24,19 +24,13 @@ namespace ChronoChart
         {
             InitializeComponent();
 
-            var random = new Random((int)DateTime.Now.Ticks);
-
             Observable
                 .Timer(DateTimeOffset.Now.AddSeconds(1), TimeSpan.FromMilliseconds(100))
                 .ObserveOnDispatcher()
+                .Where(l => IsLoaded)
                 .Subscribe(l =>
                 {
-                    if (!IsLoaded)
-                    {
-                        return;
-                    }
-
-                    CurrentValue = (int) Math.Floor(Mouse.GetPosition(this).Y); // random.Next(100);
+                    CurrentValue = (int) Math.Floor(((ActualHeight - Mouse.GetPosition(this).Y) / ActualHeight)*100);
                 });
         }
     }

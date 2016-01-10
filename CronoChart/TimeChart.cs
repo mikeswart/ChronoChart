@@ -35,11 +35,15 @@ namespace ChronoChart
         public TimeChart()
         {
             InitializeComponent();
+            var random = new Random((int) DateTime.Now.Ticks);
 
-            timedValues = new Queue<Tuple<TimeSpan, int>>(10000);
+            timedValues = new Queue<Tuple<TimeSpan, int>>(
+                Enumerable.Range(0, 1000).Select(i => new Tuple<TimeSpan, int>(TimeSpan.FromSeconds(-i), random.Next(100)))
+            );
             smoothedValues = new Queue<Tuple<TimeSpan, int>>(10000);
 
-            Observable.Interval(TimeSpan.FromMilliseconds(250))
+
+            Observable.Interval(TimeSpan.FromMilliseconds(200))
                 .ObserveOnDispatcher()
                 .Select(_ => CurrentValue)
                 .SavitzyGolaySmoothing(SavitzyGolaySmoothing.FilterParametersSize5)
@@ -58,27 +62,8 @@ namespace ChronoChart
                     smoothedValues.Enqueue(new Tuple<TimeSpan, int>(l.ElapsedTime, l.Value));
                 });
 
-            /// Moving Average
-            //Observable.Interval(TimeSpan.FromMilliseconds(250))
-            //    .Select(_ => CurrentValue)
-            //    .SlidingWindow(4)
-            //    .Select(windowValues => new
-            //    {
-            //        ElapsedTime,
-            //        Value = (int)windowValues.Average()
-            //    })
-            //    .Subscribe(l =>
-            //    {
-            //        if (smoothedValues.Count == 9999)
-            //        {
-            //            smoothedValues.Dequeue();
-            //        }
-
-            //        smoothedValues.Enqueue(new Tuple<TimeSpan, int>(l.ElapsedTime, l.Value));
-            //    });
-
             Observable
-                .Interval(TimeSpan.FromMilliseconds(500))
+                .Interval(TimeSpan.FromMilliseconds(250))
                 .ObserveOnDispatcher()
                 .Subscribe(l =>
                 {
@@ -91,7 +76,7 @@ namespace ChronoChart
                     InvalidateVisual();
                 });
 
-            rawPen = new Pen(Brushes.LightGray, 1);
+            rawPen = new Pen(Brushes.Tomato, 1);
             rawPen.Freeze();
 
             smoothPen = new Pen(Brushes.Black, 2);
@@ -105,21 +90,15 @@ namespace ChronoChart
 
         protected override void OnRender(DrawingContext drawingContext)
         {
-            var sw = new Stopwatch();
-            sw.Start();
-
             var minimumShownTime = ElapsedTime.Subtract(DisplayTimeSpan);
-            var ticksPerUnit = (DisplayTimeSpan.Ticks/ActualWidth);
+            var ticksPerUnit = (DisplayTimeSpan.Ticks / ActualWidth);
+
 
             var times = timedValues
-                .Where(tuple => tuple.Item1 > minimumShownTime)
-                .GroupBy(tuple => Math.Floor(tuple.Item1.Ticks / ticksPerUnit))
-                .Select(tuples => new
-                {
-                    Unit = ActualWidth - tuples.Key,
-                    Value = tuples.Average(tuple => tuple.Item2)
-                })
-                .Select(t => new Point(t.Unit, ActualHeight - ((ActualHeight/100)*t.Value)))
+                .Where(value => value.Item1 > minimumShownTime)
+                .Select(t => new Point(ActualWidth -  ((ElapsedTime.Ticks - t.Item1.Ticks) / ticksPerUnit), ActualHeight - ((ActualHeight / 100) * t.Item2)))
+                .GroupBy(point => point.X)
+                .Select(points => new Point(points.Key, points.Select(point => point.Y).Average()))
                 .ToList();
 
             for (var i = 1; i < times.Count; i++)
@@ -135,61 +114,64 @@ namespace ChronoChart
                 drawingContext.DrawGeometry(null, rawPen, geometry);
             }
 
-            var smoothedTimes = smoothedValues
-                .Where(tuple => tuple.Item1 > minimumShownTime)
-                .GroupBy(tuple => Math.Floor(tuple.Item1.Ticks / ticksPerUnit))
-                .Select(tuples => new
-                {
-                    Unit = ActualWidth - tuples.Key,
-                    Value = tuples.Average(tuple => tuple.Item2)
-                })
-                .Select(t => new Point(t.Unit, ActualHeight - ((ActualHeight / 100) * t.Value)))
-                .ToList();
+            //var sw = new Stopwatch();
+            //sw.Start();
 
-            for (var i = 1; i < smoothedTimes.Count; i++)
-            {
-                var geometry = new StreamGeometry();
-                using (var context = geometry.Open())
-                {
-                    context.BeginFigure(smoothedTimes[i - 1], false, false);
-                    context.LineTo(smoothedTimes[i], true, false);
-                }
+            //var minimumShownTime = ElapsedTime.Subtract(DisplayTimeSpan);
+            //var ticksPerUnit = (DisplayTimeSpan.Ticks/ActualWidth);
 
-                geometry.Freeze();
-                drawingContext.DrawGeometry(null, smoothPen, geometry);
-            }
-            sw.Stop();
+            //var times = timedValues
+            //    .Where(tuple => tuple.Item1 > minimumShownTime)
+            //    .GroupBy(tuple => Math.Floor(tuple.Item1.Ticks / ticksPerUnit))
+            //    .Select(tuples => new
+            //    {
+            //        Unit = ActualWidth - tuples.Key,
+            //        Value = tuples.Average(tuple => tuple.Item2)
+            //    })
+            //    .Select(t => new Point(t.Unit, ActualHeight - ((ActualHeight/100)*t.Value)))
+            //    .ToList();
 
-            Debug.WriteLine("Reduced " + timedValues .Count + " Rendering " + times.Count + " lines took: " + sw.ElapsedMilliseconds);
-        }
+            //for (var i = 1; i < times.Count; i++)
+            //{
+            //    var geometry = new StreamGeometry();
+            //    using (var context = geometry.Open())
+            //    {
+            //        context.BeginFigure(times[i - 1], false, false);
+            //        context.LineTo(times[i], true, false);
+            //    }
 
-        private double TimeToLocation(TimeSpan timeOffset)
-        {
-            return ActualWidth - ((ActualWidth / DisplayTimeSpan.Ticks) * timeOffset.Ticks);
-        }
+            //    geometry.Freeze();
+            //    drawingContext.DrawGeometry(null, rawPen, geometry);
+            //}
 
-        private double TimeOffsetToLocation(TimeSpan timeOffset)
-        {
-            var timeOffsetToLocation = ActualWidth - ((ActualWidth / DisplayTimeSpan.Ticks) * (ElapsedTime.Subtract(timeOffset)).Ticks);
-            return timeOffsetToLocation;
+            //var smoothedTimes = smoothedValues
+            //    .Where(tuple => tuple.Item1 > minimumShownTime)
+            //    .GroupBy(tuple => Math.Floor(tuple.Item1.Ticks / ticksPerUnit))
+            //    .Select(tuples => new
+            //    {
+            //        Unit = ActualWidth - tuples.Key,
+            //        Value = tuples.Average(tuple => tuple.Item2)
+            //    })
+            //    .Select(t => new Point(t.Unit, ActualHeight - ((ActualHeight / 100) * t.Value)))
+            //    .ToList();
+
+            //for (var i = 1; i < smoothedTimes.Count; i++)
+            //{
+            //    var geometry = new StreamGeometry();
+            //    using (var context = geometry.Open())
+            //    {
+            //        context.BeginFigure(smoothedTimes[i - 1], false, false);
+            //        context.LineTo(smoothedTimes[i], true, false);
+            //    }
+
+            //    geometry.Freeze();
+            //    drawingContext.DrawGeometry(null, smoothPen, geometry);
+            //}
+            //sw.Stop();
+
+            //Debug.WriteLine("Reduced " + timedValues .Count + " Rendering " + times.Count + " lines took: " + sw.ElapsedMilliseconds);
         }
 
         public TimeSpan DisplayTimeSpan = TimeSpan.FromMinutes(5);
-
-        private Line CreateTimeTick(TimeSpan timeOffset)
-        {
-            var x = TimeToLocation(timeOffset);
-            return new Line
-            {
-                X1 = x,
-                X2 = x,
-                Y1 = ActualHeight,
-                Y2 = ActualHeight - 10,
-                Stroke = Brushes.Fuchsia,
-                StrokeThickness = 5
-            };
-        }
-
-
     }
 }
