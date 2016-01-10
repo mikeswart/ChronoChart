@@ -101,13 +101,17 @@ namespace ChronoChart
                 .Select(points => new Point(points.Key, points.Select(point => point.Y).Average()))
                 .ToList();
 
+            var smoothedItems = new MovingAverageSmoothing(5).Smooth(times.Select(point => (int) point.Y));
+
+            var smoothedTimeItems = times.Select(point => point.X).Zip(smoothedItems, (d, i) => new Point(d, i)).ToList();
             for (var i = 1; i < times.Count; i++)
             {
                 var geometry = new StreamGeometry();
                 using (var context = geometry.Open())
                 {
-                    context.BeginFigure(times[i - 1], false, false);
-                    context.LineTo(times[i], true, false);
+
+                    context.BeginFigure(smoothedTimeItems[i - 1], false, false);
+                    context.LineTo(smoothedTimeItems[i], true, false);
                 }
 
                 geometry.Freeze();

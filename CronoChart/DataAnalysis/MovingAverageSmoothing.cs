@@ -14,14 +14,35 @@ namespace ChronoChart.DataAnalysis
             this.windowSize = windowSize;
         }
 
-        public int Smooth(IReadOnlyList<int> input)
-        {
-            return (int) input.Average();
-        }
-
         public IObservable<int> Smooth(IObservable<int> source)
         {
-            return source.SlidingWindow(windowSize).Select(values => Smooth(values.ToArray()));
+            return source.SlidingWindow(windowSize).Select(values => (int) values.Average());
+        }
+
+        public IEnumerable<int> Smooth(IEnumerable<int> source)
+        {
+            return MovingAverage(windowSize, source.ToArray());
+        }
+
+        int[] MovingAverage(int window, int[] source)
+        {
+            var average = new int[source.Length];
+
+            double sum = 0;
+            for (int bar = 0; bar < window; bar++)
+            {
+                sum += source[bar];
+            }
+
+            average[window - 1] = (int) (sum / window);
+
+            for (int bar = window; bar < source.Length; bar++)
+            {
+                average[bar] = average[bar - 1] + source[bar] / window
+                               - source[bar - window] / window;
+            }
+
+            return average;
         }
     }
 }

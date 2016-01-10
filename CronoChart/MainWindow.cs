@@ -10,7 +10,6 @@ namespace ChronoChart
     /// </summary>
     public partial class MainWindow : Window
     {
-
         public static readonly DependencyProperty CurrentValueProperty = DependencyProperty.Register(
             "CurrentValue", typeof (int), typeof (MainWindow), new PropertyMetadata(default(int)));
 
@@ -25,7 +24,7 @@ namespace ChronoChart
             InitializeComponent();
 
             Observable
-                .Timer(DateTimeOffset.Now.AddSeconds(1), TimeSpan.FromMilliseconds(100))
+                .Timer(DateTimeOffset.Now.AddSeconds(1), TimeSpan.FromMilliseconds(200))
                 .ObserveOnDispatcher()
                 .Where(l => IsLoaded)
                 .Subscribe(l =>
