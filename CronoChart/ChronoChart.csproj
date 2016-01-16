@@ -63,6 +63,9 @@
     <Reference Include="WindowsBase" />
     <Reference Include="PresentationCore" />
     <Reference Include="PresentationFramework" />
+    <Reference Include="WriteableBitmapEx.Wpf">
+      <HintPath>..\packages\WriteableBitmapEx.1.5.0.0\lib\net40\WriteableBitmapEx.Wpf.dll</HintPath>
+    </Reference>
   </ItemGroup>
   <ItemGroup>
     <ApplicationDefinition Include="App.xaml">
@@ -76,8 +79,8 @@
     <Compile Include="DependencyObjectExtensions.cs" />
     <Compile Include="ObservableExtensions.cs" />
     <Compile Include="PropertyExtensions.cs" />
-    <Compile Include="TimeChart.cs">
-      <DependentUpon>TimeChart.xaml</DependentUpon>
+    <Compile Include="CollectingChart.xaml.cs">
+      <DependentUpon>CollectingChart.xaml</DependentUpon>
     </Compile>
     <Page Include="MainWindow.xaml">
       <Generator>MSBuild:Compile</Generator>
@@ -91,7 +94,7 @@
       <DependentUpon>MainWindow.xaml</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
-    <Page Include="TimeChart.xaml">
+    <Page Include="CollectingChart.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>

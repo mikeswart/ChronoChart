@@ -25,13 +25,16 @@ namespace ChronoChart
             InitializeComponent();
 
             Observable
-                .Timer(DateTimeOffset.Now.AddSeconds(1), TimeSpan.FromMilliseconds(100))
+                .Timer(DateTimeOffset.Now.AddSeconds(1), TimeSpan.FromMilliseconds(50))
                 .ObserveOnDispatcher()
                 .Where(l => IsLoaded)
-                .Subscribe(l =>
-                {
-                    CurrentValue = (int) Math.Floor(((ActualHeight - Mouse.GetPosition(this).Y) / ActualHeight)*100);
-                });
+                .Subscribe(l => CurrentValue = (int) Math.Abs((Math.Sin(l/16.0) * 100)));
+            //.Select(l => Mouse.GetPosition(this))
+            //.Where(point => point.X > 0  && point.Y > 0)
+            //.Subscribe(l =>
+            //{
+            //    CurrentValue = (int) Math.Floor(((ActualHeight - l.Y) / ActualHeight)*100);
+            //});
         }
     }
 }
