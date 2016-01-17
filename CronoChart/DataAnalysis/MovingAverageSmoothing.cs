@@ -21,7 +21,13 @@ namespace ChronoChart.DataAnalysis
 
         public IEnumerable<int> Smooth(IEnumerable<int> source)
         {
-            return MovingAverage(windowSize, source.ToArray());
+            var sourceArray = source.ToArray();
+            if (sourceArray.Length < windowSize)
+            {
+                return sourceArray;
+            }
+
+            return MovingAverage(windowSize, sourceArray.ToArray());
         }
 
         int[] MovingAverage(int window, int[] source)
@@ -38,8 +44,7 @@ namespace ChronoChart.DataAnalysis
 
             for (int bar = window; bar < source.Length; bar++)
             {
-                average[bar] = average[bar - 1] + source[bar] / window
-                               - source[bar - window] / window;
+                average[bar] = average[bar - 1] + source[bar] / window - source[bar - window] / window;
             }
 
             return average;
