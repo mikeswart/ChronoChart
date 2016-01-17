@@ -144,16 +144,6 @@ namespace ChronoChart
             viewPort = new Rect(startTimeOffset.Ticks / ticksPerUnit, 0, duration.Ticks / ticksPerUnit, ActualHeight);
         }
 
-        private sealed class ViewPort
-        {
-            public Rect Rect { get; set; }
-            public int TicksPerUnit { get; set; }
-
-            public void Update(TimeSpan startTimeOffset, TimeSpan duration)
-            {
-            }
-        }
-
         private double GetXLocation(TimeSpan offset)
         {
             var rawOffsetDisplayUnits = offset.Ticks/ticksPerUnit;
